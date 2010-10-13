@@ -2,8 +2,10 @@ package org.goranjovic.scon;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JComboBox;
+import javax.swing.JList;
 
 import org.goranjovic.guibuilder.core.SwingView;
 
@@ -27,6 +29,10 @@ public class SwingController {
 		for(Object item : data){
 			combo.addItem(item);
 		}
+	}
+	
+	public void bind(Object bean, Map<String, String> mapping){
+		
 	}
 	
 	
