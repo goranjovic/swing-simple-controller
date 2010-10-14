@@ -1,9 +1,11 @@
-package org.goranjovic.scon.util;
+package org.goranjovic.scon.binding.proxy;
 
 import java.beans.PropertyChangeSupport;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.goranjovic.scon.binding.DummyPropertyChangeListener;
+
 
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -13,7 +15,7 @@ import javassist.CtMethod;
 import javassist.CtNewMethod;
 import javassist.NotFoundException;
 
-public class ObservableWrapperProxyFactory {
+public class BoundBeanWrapperProxyFactory {
 
 	public void adjustProxyClass(CtClass proxyClass) throws NotFoundException,
 			CannotCompileException, InstantiationException,
@@ -27,8 +29,11 @@ public class ObservableWrapperProxyFactory {
 		proxyClass.addField(changes,
 				" new java.beans.PropertyChangeSupport(this)");
 
-		CtMethod pcsGetter = CtNewMethod.getter("getChanges", changes);
+		CtMethod pcsGetter = CtNewMethod.getter("getPropertyChangeSupport", changes);
 		proxyClass.addMethod(pcsGetter);
+		
+		CtClass boundBeanWrapperProxyIface = pool.get(BoundBeanWrapperProxy.class.getCanonicalName());
+		proxyClass.addInterface(boundBeanWrapperProxyIface);
 
 		List<CtMethod> setters = getAllSetters(proxyClass);
 
@@ -39,13 +44,8 @@ public class ObservableWrapperProxyFactory {
 
 	public void adjustProxyObject(Object proxy) {
 		try {
-			Class<?> clazz = proxy.getClass();
-			Method changesGetter = clazz.getDeclaredMethod("getChanges",
-					new Class<?>[] {});
-			PropertyChangeSupport changesValue = (PropertyChangeSupport) changesGetter
-					.invoke(proxy, new Object[] {});
-			changesValue
-					.addPropertyChangeListener(new MyPropertyChangeListener());
+			PropertyChangeSupport pcs = ((BoundBeanWrapperProxy)proxy).getPropertyChangeSupport();
+			pcs.addPropertyChangeListener(new DummyPropertyChangeListener());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

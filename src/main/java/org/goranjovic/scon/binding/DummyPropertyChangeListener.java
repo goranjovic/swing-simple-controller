@@ -1,9 +1,9 @@
-package org.goranjovic.scon.util;
+package org.goranjovic.scon.binding;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-public class MyPropertyChangeListener implements PropertyChangeListener {
+public class DummyPropertyChangeListener implements PropertyChangeListener {
 
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {

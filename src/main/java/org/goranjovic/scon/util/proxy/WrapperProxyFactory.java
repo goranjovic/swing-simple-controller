@@ -1,4 +1,4 @@
-package org.goranjovic.scon.util;
+package org.goranjovic.scon.util.proxy;
 
 import java.beans.PropertyChangeSupport;
 import java.lang.reflect.Method;
@@ -37,7 +37,10 @@ public abstract class WrapperProxyFactory {
 
 			CtClass proxyCc = pool.makeClass(originalClassName + "Proxy");
 			proxyCc.addInterface(ctIface);
-
+			
+			CtClass wrapperProxyIface = pool.get(WrapperProxy.class.getCanonicalName());
+			proxyCc.addInterface(wrapperProxyIface);
+			
 			CtField origField = new CtField(ctOriginalClass, "original",
 					proxyCc);
 			proxyCc.addField(origField);
@@ -49,6 +52,11 @@ public abstract class WrapperProxyFactory {
 					"putOriginal", parameters, exceptions, "$0.original=$1;",
 					proxyCc);
 			proxyCc.addMethod(putOriginalMethod);
+			
+			CtMethod retrieveOriginalMethod = CtNewMethod.make(ctOriginalClass,
+					"retrieveOriginal", new CtClass[] {}, exceptions, "return $0.original;",
+					proxyCc);
+			proxyCc.addMethod(retrieveOriginalMethod);
 
 			CtConstructor defaultConstructor = CtNewConstructor
 					.defaultConstructor(proxyCc);
@@ -71,8 +79,8 @@ public abstract class WrapperProxyFactory {
 			Class<?> proxyClass = proxyCc.toClass();
 			Object proxyObject = proxyClass.newInstance();
 
-			Method actualPutMethod = proxyClass.getMethod("putOriginal", originalClass);
-			actualPutMethod.invoke(proxyObject, originalObject);
+			((WrapperProxy)proxyObject).putOriginal(originalObject); 
+			
 			adjustProxyObject(proxyObject);
 			return (T)proxyObject;
 
