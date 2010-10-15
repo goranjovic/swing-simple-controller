@@ -1,11 +1,5 @@
 package org.goranjovic.scon.util.proxy;
 
-import java.beans.PropertyChangeSupport;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-
-import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtConstructor;
@@ -16,9 +10,9 @@ import javassist.CtNewMethod;
 
 public abstract class WrapperProxyFactory {
 
-	public abstract void adjustProxyClass(CtClass proxyClass);
+	public abstract void adjustProxyClass(CtClass proxyClass) throws Exception;
 
-	public abstract void adjustProxyObject(Object proxy);
+	public abstract void adjustProxyObject(Object proxy)  throws Exception;
 
 	@SuppressWarnings("unchecked")
 	public <T> T createWrapperProxy(Object originalObject,
@@ -26,26 +20,24 @@ public abstract class WrapperProxyFactory {
 
 		try {
 
-			Class<? extends Object> originalClass = originalObject.getClass();
-			String originalClassName = originalClass.getCanonicalName();
 			String ifaceName = iface.getCanonicalName();
 
 			ClassPool pool = ClassPool.getDefault();
 
-			CtClass ctOriginalClass = pool.get(originalClassName);
 			CtClass ctIface = pool.get(ifaceName);
+			CtClass ctBaseType = pool.get(Object.class.getCanonicalName());
 
-			CtClass proxyCc = pool.makeClass(originalClassName + "Proxy");
+			CtClass proxyCc = pool.makeClass(ifaceName + "Proxy");
 			proxyCc.addInterface(ctIface);
 			
 			CtClass wrapperProxyIface = pool.get(WrapperProxy.class.getCanonicalName());
 			proxyCc.addInterface(wrapperProxyIface);
 			
-			CtField origField = new CtField(ctOriginalClass, "original",
+			CtField origField = new CtField(ctIface, "original",
 					proxyCc);
 			proxyCc.addField(origField);
 
-			CtClass[] parameters = new CtClass[] { ctOriginalClass };
+			CtClass[] parameters = new CtClass[] { ctBaseType };
 			CtClass[] exceptions = new CtClass[] {};
 
 			CtMethod putOriginalMethod = CtNewMethod.make(CtClass.voidType,
@@ -53,7 +45,7 @@ public abstract class WrapperProxyFactory {
 					proxyCc);
 			proxyCc.addMethod(putOriginalMethod);
 			
-			CtMethod retrieveOriginalMethod = CtNewMethod.make(ctOriginalClass,
+			CtMethod retrieveOriginalMethod = CtNewMethod.make(ctBaseType,
 					"retrieveOriginal", new CtClass[] {}, exceptions, "return $0.original;",
 					proxyCc);
 			proxyCc.addMethod(retrieveOriginalMethod);

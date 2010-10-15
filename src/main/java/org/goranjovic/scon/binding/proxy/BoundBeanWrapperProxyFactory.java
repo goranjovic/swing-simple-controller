@@ -1,10 +1,14 @@
 package org.goranjovic.scon.binding.proxy;
 
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.goranjovic.scon.binding.DummyPropertyChangeListener;
+import org.goranjovic.scon.util.BeanUtil;
+import org.goranjovic.scon.util.proxy.WrapperProxyFactory;
 
 
 import javassist.CannotCompileException;
@@ -15,11 +19,30 @@ import javassist.CtMethod;
 import javassist.CtNewMethod;
 import javassist.NotFoundException;
 
-public class BoundBeanWrapperProxyFactory {
+public class BoundBeanWrapperProxyFactory extends WrapperProxyFactory {
+	
+	private PropertyChangeListener propertyChangeListener;
 
-	public void adjustProxyClass(CtClass proxyClass) throws NotFoundException,
-			CannotCompileException, InstantiationException,
-			IllegalAccessException {
+	public PropertyChangeListener getPropertyChangeListener() {
+		return propertyChangeListener;
+	}
+
+	public void setPropertyChangeListener(
+			PropertyChangeListener propertyChangeListener) {
+		this.propertyChangeListener = propertyChangeListener;
+	}
+	
+	private Collection<String> boundProperties;
+
+	public Collection<String> getBoundProperties() {
+		return boundProperties;
+	}
+
+	public void setBoundProperties(Collection<String> boundProperties) {
+		this.boundProperties = boundProperties;
+	}
+
+	public void adjustProxyClass(CtClass proxyClass) throws Exception {
 
 		ClassPool pool = ClassPool.getDefault();
 
@@ -35,7 +58,7 @@ public class BoundBeanWrapperProxyFactory {
 		CtClass boundBeanWrapperProxyIface = pool.get(BoundBeanWrapperProxy.class.getCanonicalName());
 		proxyClass.addInterface(boundBeanWrapperProxyIface);
 
-		List<CtMethod> setters = getAllSetters(proxyClass);
+		List<CtMethod> setters = getSetters(proxyClass);
 
 		for (CtMethod setter : setters) {
 			alterSetter(setter);
@@ -45,14 +68,13 @@ public class BoundBeanWrapperProxyFactory {
 	public void adjustProxyObject(Object proxy) {
 		try {
 			PropertyChangeSupport pcs = ((BoundBeanWrapperProxy)proxy).getPropertyChangeSupport();
-			pcs.addPropertyChangeListener(new DummyPropertyChangeListener());
+			pcs.addPropertyChangeListener(getPropertyChangeListener());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void alterSetter(CtMethod setter) throws CannotCompileException,
-			NotFoundException {
+	private void alterSetter(CtMethod setter) throws Exception {
 		String property = getPropertyName(setter);
 		setter.addLocalVariable("oldValue", setter.getParameterTypes()[0]);
 		setter.insertBefore("oldValue=this." + getGetterName(setter) + ";");
@@ -63,11 +85,11 @@ public class BoundBeanWrapperProxyFactory {
 	private String getPropertyName(CtMethod setter) {
 
 		String methodName = setter.getName();
-		String propertyName = methodName.substring(3, 4).toLowerCase()
-				+ methodName.substring(4);
+		String propertyName = BeanUtil.getPropertyName(methodName);
 
 		return propertyName;
 	}
+
 
 	private String getGetterName(CtMethod setter) throws NotFoundException {
 		String prefix = "get";
@@ -77,11 +99,13 @@ public class BoundBeanWrapperProxyFactory {
 		return prefix + setter.getName().substring(3) + "()";
 	}
 
-	private List<CtMethod> getAllSetters(CtClass ct) {
+	private List<CtMethod> getSetters(CtClass ct) {
 
 		List<CtMethod> setters = new ArrayList<CtMethod>();
 		for (CtMethod method : ct.getMethods()) {
-			if (method.getName().startsWith("set")) {
+			String methodName = method.getName();
+			String propertyName = BeanUtil.getPropertyName(methodName);
+			if (methodName.startsWith("set") && boundProperties.contains(propertyName)) {
 				setters.add(method);
 			}
 		}
