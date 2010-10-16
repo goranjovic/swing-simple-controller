@@ -14,6 +14,7 @@ import javax.swing.JComboBox;
 
 import org.goranjovic.guibuilder.core.SwingView;
 import org.goranjovic.guibuilder.util.components.SComponent;
+import org.goranjovic.guibuilder.util.components.SRadio;
 import org.goranjovic.scon.binding.listeners.BeanPropertyChangeListener;
 import org.goranjovic.scon.binding.listeners.DummyPropertyChangeListener;
 import org.goranjovic.scon.binding.listeners.SComponentPropertyChangeListener;
@@ -86,6 +87,15 @@ public class SwingController {
 		
 		return (T) ((WrapperProxy)boundBean).retrieveOriginal();
 		
+	}
+	
+	public void setRadioModel(Map<String, Object> fullRadioModel){
+		for(String radioId : fullRadioModel.keySet()){
+			Object model = fullRadioModel.get(radioId);
+			SRadio radio = (SRadio) view.findComponent(radioId);
+			radio.setMode("model");
+			radio.setRadioModel(model);
+		}
 	}
 	
 
