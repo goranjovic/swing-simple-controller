@@ -1,4 +1,4 @@
-package org.goranjovic.scon.binding;
+package org.goranjovic.scon.binding.listeners;
 
 import java.awt.Component;
 import java.beans.PropertyChangeEvent;

@@ -12,8 +12,8 @@ import java.util.Set;
 import javax.swing.JComboBox;
 
 import org.goranjovic.guibuilder.core.SwingView;
-import org.goranjovic.scon.binding.BeanPropertyChangeListener;
-import org.goranjovic.scon.binding.DummyPropertyChangeListener;
+import org.goranjovic.scon.binding.listeners.BeanPropertyChangeListener;
+import org.goranjovic.scon.binding.listeners.DummyPropertyChangeListener;
 import org.goranjovic.scon.binding.proxy.BoundBeanWrapperProxyFactory;
 import org.goranjovic.scon.util.proxy.WrapperProxy;
 

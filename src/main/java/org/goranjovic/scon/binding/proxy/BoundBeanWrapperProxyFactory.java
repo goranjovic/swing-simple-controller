@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.goranjovic.scon.binding.DummyPropertyChangeListener;
+import org.goranjovic.scon.binding.listeners.DummyPropertyChangeListener;
 import org.goranjovic.scon.util.BeanUtil;
 import org.goranjovic.scon.util.proxy.WrapperProxyFactory;
 
