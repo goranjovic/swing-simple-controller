@@ -19,6 +19,33 @@ public class BeanUtil {
 		}
 	}
 	
+	public static void setPropertyValue(Object bean, String propertyName, Object value){
+		
+		try{
+		
+		Class<?> clazz = bean.getClass();
+		String setterName = getAccessorName(propertyName, "set", null);
+		Method setter = findCompatibleSetter(value, clazz, setterName);
+		setter.invoke(bean, value);
+		
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+	}
+
+	private static Method findCompatibleSetter(Object value, Class<?> clazz,
+			String setterName) throws NoSuchMethodException {
+		for(Method m : clazz.getMethods()){
+			if(m.getName().equals(setterName)){
+					//&& m.getParameterTypes().length == 1
+					//&& m.getParameterTypes()[0].isAssignableFrom(value.getClass())){
+				return m;
+			}
+		}
+		return null;
+	}
+	
 	public static String getPropertyName(String methodName) {
 		String propertyName = methodName.substring(3, 4).toLowerCase()
 				+ methodName.substring(4);

@@ -1,5 +1,6 @@
 package org.goranjovic.scon;
 
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -12,8 +13,10 @@ import java.util.Set;
 import javax.swing.JComboBox;
 
 import org.goranjovic.guibuilder.core.SwingView;
+import org.goranjovic.guibuilder.util.components.SComponent;
 import org.goranjovic.scon.binding.listeners.BeanPropertyChangeListener;
 import org.goranjovic.scon.binding.listeners.DummyPropertyChangeListener;
+import org.goranjovic.scon.binding.listeners.SComponentPropertyChangeListener;
 import org.goranjovic.scon.binding.proxy.BoundBeanWrapperProxyFactory;
 import org.goranjovic.scon.util.proxy.WrapperProxy;
 
@@ -49,6 +52,13 @@ public class SwingController {
 		
 		T proxy = beanProxyFactory.createWrapperProxy(bean, iface);
 
+		for(String componentId : mapping.keySet()){
+			
+			SComponent scomponent = (SComponent) view.findComponent(componentId);
+			PropertyChangeSupport pcs = scomponent.retrievePropertyChangeSupport();
+			pcs.addPropertyChangeListener(new SComponentPropertyChangeListener(bean,mapping.get(componentId)));
+			
+		}
 		
 		return proxy;
 	}
@@ -67,7 +77,6 @@ public class SwingController {
 			}
 			reverse.put(value, keys);
 		}
-		
 		
 		return reverse;
 	}
