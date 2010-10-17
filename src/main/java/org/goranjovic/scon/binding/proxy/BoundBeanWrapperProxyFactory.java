@@ -69,6 +69,16 @@ public class BoundBeanWrapperProxyFactory extends WrapperProxyFactory {
 		try {
 			PropertyChangeSupport pcs = ((BoundBeanWrapperProxy)proxy).getPropertyChangeSupport();
 			pcs.addPropertyChangeListener(getPropertyChangeListener());
+			
+			//must fire events for all bound properties
+			//for initial syncing
+			for(String boundProperty : boundProperties){
+				Object value = BeanUtil.getPropertyValue(proxy, boundProperty);
+				if(value != null){
+					pcs.firePropertyChange(boundProperty, null, value);
+				}
+			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

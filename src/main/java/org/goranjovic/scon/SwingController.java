@@ -12,9 +12,9 @@ import java.util.Set;
 
 import javax.swing.JComboBox;
 
+import org.goranjovic.guibuilder.components.SComponent;
+import org.goranjovic.guibuilder.components.SRadio;
 import org.goranjovic.guibuilder.core.SwingView;
-import org.goranjovic.guibuilder.util.components.SComponent;
-import org.goranjovic.guibuilder.util.components.SRadio;
 import org.goranjovic.scon.binding.listeners.BeanPropertyChangeListener;
 import org.goranjovic.scon.binding.listeners.DummyPropertyChangeListener;
 import org.goranjovic.scon.binding.listeners.SComponentPropertyChangeListener;

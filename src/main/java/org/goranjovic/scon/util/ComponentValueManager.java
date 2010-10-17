@@ -2,7 +2,7 @@ package org.goranjovic.scon.util;
 
 import java.awt.Component;
 
-import org.goranjovic.guibuilder.util.components.ValueHolder;
+import org.goranjovic.guibuilder.components.ValueHolder;
 
 public class ComponentValueManager {
 	

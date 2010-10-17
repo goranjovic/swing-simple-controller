@@ -20,6 +20,11 @@
 			<artifactId>javassist</artifactId>
 			<version>3.13.0-GA</version>
 		</dependency>
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.6</version>
+		</dependency>
 	</dependencies>
 
 	<build>

@@ -2,17 +2,15 @@ package org.goranjovic.scon.util;
 
 import java.lang.reflect.Method;
 
+import org.apache.commons.beanutils.PropertyUtils;
+
 public class BeanUtil {
 	
 	public static Object getPropertyValue(Object bean, 
-			String propertyName, Class<?> propertyType){
+			String propertyName){
 		
-		try{
-			Class<?> clazz = bean.getClass();
-			String getterName = getAccessorName(propertyName, "get", propertyType);
-			Method getter = clazz.getMethod(getterName, new Class<?>[]{});
-			
-			return getter.invoke(bean, new Object[]{});
+		try{			
+			return PropertyUtils.getSimpleProperty(bean, propertyName);
 		}catch(Exception e){
 			e.printStackTrace();
 			return null;
