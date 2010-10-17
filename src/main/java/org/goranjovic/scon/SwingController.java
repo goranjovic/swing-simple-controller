@@ -2,6 +2,7 @@ package org.goranjovic.scon;
 
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -41,6 +42,11 @@ public class SwingController {
 		for(Object item : data){
 			combo.addItem(item);
 		}
+	}
+	
+	public void fillCombo(String comboId, Object[] data, boolean append){
+		List<?> list = Arrays.asList(data);
+		fillCombo(comboId, list, append);
 	}
 	
 	public <T> T bind(T bean, Class<T> iface, Map<String, String> mapping){
