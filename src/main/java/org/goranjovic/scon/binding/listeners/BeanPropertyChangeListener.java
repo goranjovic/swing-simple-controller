@@ -26,7 +26,8 @@ public class BeanPropertyChangeListener implements PropertyChangeListener {
 
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
-		System.out.println(event.getPropertyName() + ": " + event.getOldValue() + " -> " + event.getNewValue());
+		Object bean = event.getSource();
+		System.out.println(bean.getClass().getSimpleName()+"."+event.getPropertyName() + ": " + event.getOldValue() + " -> " + event.getNewValue());
 		Object value = event.getNewValue();
 		List<String> componentIds = reverseMapping.get(event.getPropertyName());
 		for(String componentId : componentIds){

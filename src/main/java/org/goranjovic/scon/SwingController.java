@@ -1,6 +1,8 @@
 package org.goranjovic.scon;
 
 import java.beans.PropertyChangeSupport;
+import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -9,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.swing.JComboBox;
@@ -34,6 +37,29 @@ public class SwingController {
 		this.view = view;
 	}
 
+	private Properties validationRules;
+	
+	public void setValidationRules(Properties validationRules) {
+		this.validationRules = validationRules;
+	}
+	
+	public void setValidationRules(File propFile){
+			try {
+				validationRules = new Properties();
+				validationRules.load(new FileReader(propFile));
+			} catch (Exception e){
+		}
+	}
+	
+	public void setValidationRules(String fileName){
+		File file = new File(fileName);
+		setValidationRules(file);		
+	}
+
+	public Properties getValidationRules() {
+		return validationRules;
+	}
+
 	public void fillCombo(String comboId, Collection<?> data, boolean append){
 		JComboBox combo = (JComboBox) getView().findComponent(comboId);
 		if(!append){
@@ -49,7 +75,7 @@ public class SwingController {
 		fillCombo(comboId, list, append);
 	}
 	
-	public <T> T bind(T bean, Class<T> iface, Map<String, String> mapping){
+	public <T> T bindBean(T bean, Class<T> iface, Map<String, String> mapping){
 	
 		Collection<String> boundProperties = mapping.values();
 		Map<String, List<String>> reverseMapping = createReverseMapping(mapping);
@@ -63,7 +89,14 @@ public class SwingController {
 			
 			SComponent scomponent = (SComponent) view.findComponent(componentId);
 			PropertyChangeSupport pcs = scomponent.retrievePropertyChangeSupport();
-			pcs.addPropertyChangeListener(new SComponentPropertyChangeListener(bean,mapping.get(componentId)));
+			String ruleString = "";
+			if (getValidationRules() != null && 
+					getValidationRules().get(componentId) != null) {
+				Object rule = getValidationRules().get(componentId);
+				ruleString = rule.toString();
+			}
+			SComponentPropertyChangeListener listener = new SComponentPropertyChangeListener(bean,mapping.get(componentId),ruleString);
+			pcs.addPropertyChangeListener(listener);
 			
 		}
 		
@@ -103,6 +136,5 @@ public class SwingController {
 			radio.setRadioModel(model);
 		}
 	}
-	
 
 }
