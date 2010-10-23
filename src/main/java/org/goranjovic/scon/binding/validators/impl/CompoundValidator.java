@@ -7,7 +7,7 @@ public class CompoundValidator implements Validator {
 	@Override
 	public boolean validate(String value, String compoundRule) {
 		
-		String[] rules = compoundRule.split(",");
+		String[] rules = compoundRule.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
 		SmartValidator smartValidator = new SmartValidator();
 		
 		for(String rule : rules){

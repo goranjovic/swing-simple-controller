@@ -21,7 +21,7 @@ public class SmartValidator implements Validator {
 			realValidator = new MinLengthValidator();
 		}else if(rule.startsWith("required")){
 			realValidator = new RequiredValidator();
-		}else if(rule.startsWith("//")){
+		}else if(rule.startsWith("\"")){
 			realValidator = new RegexValidator();
 		}else if(rule.startsWith("email")){
 			realValidator = new EmailValidator();

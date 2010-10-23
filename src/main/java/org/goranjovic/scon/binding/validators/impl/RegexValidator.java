@@ -8,7 +8,8 @@ public class RegexValidator implements Validator {
 
 	@Override
 	public boolean validate(String value, String rule) {
-		return Pattern.matches(rule, value);
+		rule = rule.substring(1, rule.length() -1);
+		return Pattern.compile(rule).matcher(value).matches();
 	}
 
 }
