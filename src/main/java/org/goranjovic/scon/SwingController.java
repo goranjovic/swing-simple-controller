@@ -18,10 +18,14 @@ import javax.swing.JComboBox;
 
 import org.goranjovic.guibuilder.components.SComponent;
 import org.goranjovic.guibuilder.components.SRadio;
+import org.goranjovic.guibuilder.components.STab;
+import org.goranjovic.guibuilder.components.STable;
+import org.goranjovic.guibuilder.components.support.VariableTableModel;
 import org.goranjovic.guibuilder.core.SwingView;
 import org.goranjovic.scon.binding.listeners.BeanPropertyChangeListener;
 import org.goranjovic.scon.binding.listeners.DummyPropertyChangeListener;
 import org.goranjovic.scon.binding.listeners.SComponentPropertyChangeListener;
+import org.goranjovic.scon.binding.listeners.STableChangeListener;
 import org.goranjovic.scon.binding.proxy.BoundBeanWrapperProxyFactory;
 import org.goranjovic.scon.util.proxy.WrapperProxy;
 
@@ -135,6 +139,17 @@ public class SwingController {
 			radio.setMode("model");
 			radio.setRadioModel(model);
 		}
+	}
+	
+	public <T> List<T> bindCollection(List<T> collection, Class<T> itemIface, 
+			String tableId, Map<String, String> mapping){
+		
+		STable table = (STable) view.findComponent(tableId);
+		VariableTableModel model = (VariableTableModel) table.getModel();
+		model.setBoundColumns(mapping.keySet());
+		PropertyChangeSupport pcs = model.retrievePropertyChangeSupport();
+		pcs.addPropertyChangeListener(new STableChangeListener(collection, mapping));
+		return null;
 	}
 
 }

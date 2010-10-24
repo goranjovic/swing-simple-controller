@@ -3,10 +3,7 @@ package org.goranjovic.scon.binding.listeners;
 import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Map;
-import java.util.Properties;
 
-import org.goranjovic.guibuilder.components.SComponent;
 import org.goranjovic.scon.binding.validators.Validator;
 import org.goranjovic.scon.binding.validators.impl.CompoundValidator;
 import org.goranjovic.scon.util.BeanUtil;
