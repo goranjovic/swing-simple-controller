@@ -27,48 +27,63 @@ public abstract class WrapperProxyFactory {
 			CtClass ctIface = pool.get(ifaceName);
 			CtClass ctBaseType = pool.get(Object.class.getCanonicalName());
 
-			CtClass proxyCc = pool.makeClass(ifaceName + "Proxy");
-			proxyCc.addInterface(ctIface);
+			String proxyClassName = ifaceName + getProxyClassNameSuffix();
 			
-			CtClass wrapperProxyIface = pool.get(WrapperProxy.class.getCanonicalName());
-			proxyCc.addInterface(wrapperProxyIface);
-			
-			CtField origField = new CtField(ctIface, "original",
-					proxyCc);
-			proxyCc.addField(origField);
-
-			CtClass[] parameters = new CtClass[] { ctBaseType };
-			CtClass[] exceptions = new CtClass[] {};
-
-			CtMethod putOriginalMethod = CtNewMethod.make(CtClass.voidType,
-					"putOriginal", parameters, exceptions, "$0.original=$1;",
-					proxyCc);
-			proxyCc.addMethod(putOriginalMethod);
-			
-			CtMethod retrieveOriginalMethod = CtNewMethod.make(ctBaseType,
-					"retrieveOriginal", new CtClass[] {}, exceptions, "return $0.original;",
-					proxyCc);
-			proxyCc.addMethod(retrieveOriginalMethod);
-
-			CtConstructor defaultConstructor = CtNewConstructor
-					.defaultConstructor(proxyCc);
-			proxyCc.addConstructor(defaultConstructor);
-
-			for (CtMethod operation : ctIface.getDeclaredMethods()) {
-				String delegatingCode = "";
-				if (!operation.getReturnType().equals(CtClass.voidType)) {
-					delegatingCode += "return ";
-				}
-				delegatingCode += " original." + operation.getName() + "($$);";
-				CtMethod delegate = CtNewMethod.make(operation.getReturnType(),
-						operation.getName(), operation.getParameterTypes(),
-						operation.getExceptionTypes(), delegatingCode, proxyCc);
-				proxyCc.addMethod(delegate);
+			Class<?> proxyClass = null;
+			try{
+				proxyClass = Class.forName(proxyClassName);
+			}catch(ClassNotFoundException cnf){
+				//nothing; keep it null;
 			}
+			
+			if(proxyClass == null){
+			
+				CtClass proxyCc = pool.makeClass(proxyClassName);
+				proxyCc.addInterface(ctIface);
+				
+				CtClass wrapperProxyIface = pool.get(WrapperProxy.class.getCanonicalName());
+				proxyCc.addInterface(wrapperProxyIface);
+				
+				CtField origField = new CtField(ctIface, "original",
+						proxyCc);
+				proxyCc.addField(origField);
+	
+				CtClass[] parameters = new CtClass[] { ctBaseType };
+				CtClass[] exceptions = new CtClass[] {};
+	
+				CtMethod putOriginalMethod = CtNewMethod.make(CtClass.voidType,
+						"putOriginal", parameters, exceptions, "$0.original=$1;",
+						proxyCc);
+				proxyCc.addMethod(putOriginalMethod);
+				
+				CtMethod retrieveOriginalMethod = CtNewMethod.make(ctBaseType,
+						"retrieveOriginal", new CtClass[] {}, exceptions, "return $0.original;",
+						proxyCc);
+				proxyCc.addMethod(retrieveOriginalMethod);
+	
+				CtConstructor defaultConstructor = CtNewConstructor
+						.defaultConstructor(proxyCc);
+				proxyCc.addConstructor(defaultConstructor);
+	
+				for (CtMethod operation : ctIface.getDeclaredMethods()) {
+					String delegatingCode = "";
+					if (!operation.getReturnType().equals(CtClass.voidType)) {
+						delegatingCode += "return ";
+					}
+					delegatingCode += " original." + operation.getName() + "($$);";
+					CtMethod delegate = CtNewMethod.make(operation.getReturnType(),
+							operation.getName(), operation.getParameterTypes(),
+							operation.getExceptionTypes(), delegatingCode, proxyCc);
+					proxyCc.addMethod(delegate);
+				}
+	
+				adjustProxyClass(proxyCc);
+				
+				proxyClass = proxyCc.toClass();
+				
 
-			adjustProxyClass(proxyCc);
-
-			Class<?> proxyClass = proxyCc.toClass();
+			}
+			
 			Object proxyObject = proxyClass.newInstance();
 
 			((WrapperProxy)proxyObject).putOriginal(originalObject); 
@@ -80,6 +95,10 @@ public abstract class WrapperProxyFactory {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	public String getProxyClassNameSuffix() {
+		return "Proxy";
 	}
 
 }

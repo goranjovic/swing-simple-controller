@@ -23,6 +23,7 @@ import org.goranjovic.guibuilder.components.STable;
 import org.goranjovic.guibuilder.components.support.VariableTableModel;
 import org.goranjovic.guibuilder.core.SwingView;
 import org.goranjovic.scon.binding.listeners.BeanPropertyChangeListener;
+import org.goranjovic.scon.binding.listeners.CollectionItemPropertyChangeListener;
 import org.goranjovic.scon.binding.listeners.DummyPropertyChangeListener;
 import org.goranjovic.scon.binding.listeners.SComponentPropertyChangeListener;
 import org.goranjovic.scon.binding.listeners.STableChangeListener;
@@ -144,12 +145,27 @@ public class SwingController {
 	public <T> List<T> bindCollection(List<T> collection, Class<T> itemIface, 
 			String tableId, Map<String, String> mapping){
 		
+		//table row to bean
 		STable table = (STable) view.findComponent(tableId);
 		VariableTableModel model = (VariableTableModel) table.getModel();
 		model.setBoundColumns(mapping.keySet());
 		PropertyChangeSupport pcs = model.retrievePropertyChangeSupport();
 		pcs.addPropertyChangeListener(new STableChangeListener(collection, mapping));
-		return null;
+		
+		//bean to table row
+		Map<String, List<String>> reverseMapping = createReverseMapping(mapping);
+		CollectionItemPropertyChangeListener itemListener = new CollectionItemPropertyChangeListener(view, reverseMapping, collection, table);
+		BoundBeanWrapperProxyFactory factory = new BoundBeanWrapperProxyFactory();
+		factory.setBoundProperties(mapping.values());
+		factory.setPropertyChangeListener(itemListener);
+		List<T> proxiesList = new ArrayList<T>(collection.size());
+		
+		for(T item : collection){
+			T proxyItem = factory.createWrapperProxy(item, itemIface);
+			proxiesList.add(proxyItem);
+		}
+		
+		return proxiesList;
 	}
 
 }

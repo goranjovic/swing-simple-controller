@@ -121,5 +121,10 @@ public class BoundBeanWrapperProxyFactory extends WrapperProxyFactory {
 		}
 		return setters;
 	}
+	
+	@Override
+	public String getProxyClassNameSuffix() {
+		return "BoundBeanProxy";
+	}
 
 }
