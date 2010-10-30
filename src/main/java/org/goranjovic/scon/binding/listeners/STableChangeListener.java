@@ -5,12 +5,17 @@ import java.beans.PropertyChangeListener;
 import java.util.List;
 import java.util.Map;
 
+import org.goranjovic.scon.binding.validators.Validator;
+import org.goranjovic.scon.binding.validators.impl.CompoundValidator;
 import org.goranjovic.scon.util.BeanUtil;
 
 public class STableChangeListener implements PropertyChangeListener {
+
+	private static final Validator validator = new CompoundValidator();
 	
 	private List<?> collection;
 	private Map<String, String> mapping;
+	private Map<String, String> validationRules;
 
 	public Map<String, String> getMapping() {
 		return mapping;
@@ -20,9 +25,10 @@ public class STableChangeListener implements PropertyChangeListener {
 		this.mapping = mapping;
 	}
 
-	public STableChangeListener(List<?> collection, Map<String, String> mapping) {
+	public STableChangeListener(List<?> collection, Map<String, String> mapping, Map<String, String> validationRules) {
 		this.collection = collection;
 		this.mapping = mapping;
+		this.validationRules = validationRules;
 	}
 
 	public List<?> getCollection() {
@@ -42,9 +48,17 @@ public class STableChangeListener implements PropertyChangeListener {
 		
 		String beanPropertyName = mapping.get(column);
 		
-		System.out.println("(" + event.getPropertyName() +"): " + event.getOldValue() + " -> " + event.getNewValue() );
+		Object value = event.getNewValue();
+		String rule = validationRules.get(column);
 		
-		BeanUtil.setPropertyValue(collection.get(row), beanPropertyName, event.getNewValue());
+		if(rule == null || validator.validate(value.toString(), rule)){
+		
+			System.out.println("(" + event.getPropertyName() +"): " + event.getOldValue() + " -> " + value );
+			BeanUtil.setPropertyValue(collection.get(row), beanPropertyName, value);
+			
+		}else{
+			System.out.println(value + " not valid " + rule);
+		}
 	}
 
 }

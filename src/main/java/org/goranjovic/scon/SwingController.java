@@ -64,7 +64,16 @@ public class SwingController {
 	public Properties getValidationRules() {
 		return validationRules;
 	}
-
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public Map<String, String> getValidationRulesMap(){
+		Map rawRules = (Map)getValidationRules();
+		if(rawRules == null){
+			return new HashMap<String, String>();
+		}
+		return new HashMap<String, String>(rawRules);
+	}
+ 
 	public void fillCombo(String comboId, Collection<?> data, boolean append){
 		JComboBox combo = (JComboBox) getView().findComponent(comboId);
 		if(!append){
@@ -150,7 +159,7 @@ public class SwingController {
 		VariableTableModel model = (VariableTableModel) table.getModel();
 		model.setBoundColumns(mapping.keySet());
 		PropertyChangeSupport pcs = model.retrievePropertyChangeSupport();
-		pcs.addPropertyChangeListener(new STableChangeListener(collection, mapping));
+		pcs.addPropertyChangeListener(new STableChangeListener(collection, mapping, getValidationRulesMap()));
 		
 		//bean to table row
 		Map<String, List<String>> reverseMapping = createReverseMapping(mapping);
